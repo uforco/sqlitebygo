@@ -1,7 +1,54 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"log"
+	"log/slog"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/uforco/sqlitebygo/internal/config"
+)
 
 func main() {
-	fmt.Println("welcome to sqlite test")
+	// load conig
+	clg := config.MustLoad(".env")
+	// database connection
+
+	// setup router
+	router := http.NewServeMux()
+
+	// setup handlers
+	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello World"))
+	})
+
+	// setup server
+	server := http.Server{
+		Addr:    clg.Address,
+		Handler: router,
+	}
+	// concarece cal for server start and stop
+	// Try to Start server
+	slog.Info("server started", "address", clg.Address)
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		err := server.ListenAndServe()
+		if err != nil {
+			log.Fatal("failed to start server")
+		}
+	}()
+	<-done
+	// if Err and user close server; then shutdown server
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		slog.Error("failed to shutdown server", slog.String("error", err.Error()))
+	}
+	slog.Info("server stopped")
+
 }

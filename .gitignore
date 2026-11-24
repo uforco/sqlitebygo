@@ -17,5 +17,9 @@ go.work
 # Dependency directories
 vendor/
 
+# env
+.env
+
 # config folder
 /config
+/storage
