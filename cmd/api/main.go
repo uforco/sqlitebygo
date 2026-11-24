@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/uforco/sqlitebygo/cmd/api/registar-api"
 	"github.com/uforco/sqlitebygo/internal/config"
 )
 
@@ -25,6 +26,8 @@ func main() {
 	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello World"))
 	})
+	// register static files
+	registar.Api(router, clg)
 
 	// setup server
 	server := http.Server{
