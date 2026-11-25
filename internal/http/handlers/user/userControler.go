@@ -1,7 +1,11 @@
 package user
 
-import "net/http"
+import (
+	"net/http"
 
-func UserControler(router *http.ServeMux) {
-	router.HandleFunc("POST /user", CreateUser())
+	"github.com/uforco/sqlitebygo/internal/db"
+)
+
+func UserControler(router *http.ServeMux, storage db.DB) {
+	router.HandleFunc("POST /user", CreateUser(storage))
 }

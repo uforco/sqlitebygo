@@ -14,13 +14,19 @@ import (
 	"github.com/uforco/sqlitebygo/cmd/api/registar-api"
 	// _ "github.com/uforco/sqlitebygo/docs"
 	"github.com/uforco/sqlitebygo/internal/config"
+	"github.com/uforco/sqlitebygo/internal/db/sqlite"
 )
 
 func main() {
 	// load conig
-	clg := config.MustLoad(".env")
-	// database connection
+	cfg := config.MustLoad(".env")
 
+	// database connection
+	db, dbError := sqlite.New(cfg)
+	if dbError != nil {
+		log.Fatal("failed to init db", dbError.Error())
+	}
+	
 	// setup router
 	router := http.NewServeMux()
 
@@ -30,7 +36,7 @@ func main() {
 	})
 
 	// register static files
-	registar.Api(router, clg)
+	registar.Api(router, cfg, db)
 
 	// setup swag
 	// router.Handle("/swagger/", httpSwagger.Handler(
@@ -39,12 +45,12 @@ func main() {
 
 	// setup server
 	server := http.Server{
-		Addr:    clg.Address,
+		Addr:    cfg.Address,
 		Handler: router,
 	}
 	// concarece cal for server start and stop
 	// Try to Start server
-	slog.Info("server started", "address", clg.Address)
+	slog.Info("server started", "address", cfg.Address)
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	go func() {

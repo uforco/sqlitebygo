@@ -8,12 +8,13 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/uforco/sqlitebygo/internal/db"
 	"github.com/uforco/sqlitebygo/schema"
 	errorhandle "github.com/uforco/sqlitebygo/utils/error-handle"
 	"github.com/uforco/sqlitebygo/utils/response"
 )
 
-func CreateUser() http.HandlerFunc {
+func CreateUser(db db.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var user schema.UserSchema
