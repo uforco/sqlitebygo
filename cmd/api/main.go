@@ -10,7 +10,9 @@ import (
 	"syscall"
 	"time"
 
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 	"github.com/uforco/sqlitebygo/cmd/api/registar-api"
+	_ "github.com/uforco/sqlitebygo/docs"
 	"github.com/uforco/sqlitebygo/internal/config"
 )
 
@@ -23,11 +25,17 @@ func main() {
 	router := http.NewServeMux()
 
 	// setup handlers
-	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello World"))
 	})
+
 	// register static files
 	registar.Api(router, clg)
+
+	// setup swag
+	router.Handle("/swagger/", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"),
+	))
 
 	// setup server
 	server := http.Server{
