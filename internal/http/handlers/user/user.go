@@ -7,7 +7,9 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/uforco/sqlitebygo/schema"
+	errorhandle "github.com/uforco/sqlitebygo/utils/error-handle"
 	"github.com/uforco/sqlitebygo/utils/response"
 )
 
@@ -29,6 +31,11 @@ func CreateUser() http.HandlerFunc {
 			return
 		}
 		// request validation
+		if err := validator.New().Struct(user); err != nil {
+			validationError := err.(validator.ValidationErrors)
+			response.WriteJson(w, http.StatusBadRequest, errorhandle.ValidationError(validationError))
+			return
+		}
 
 		slog.Info("create a new ", "user", user)
 		response.WriteJson(w, http.StatusCreated, map[string]interface{}{"message": "user created"})
