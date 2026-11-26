@@ -27,13 +27,7 @@ func New(cfg *config.Config) (*Sqlite, error) {
 
 // query row
 func (db *Sqlite) QueryRow(query string, args ...interface{}) *sql.Row {
-	if db.err != nil {
-		return nil
-	}
-	if db.content == "" {
-		db.content = query
-	}
-	return db.Storage.QueryRow(db.content, args...)
+	return db.Storage.QueryRow(query, args...)
 }
 
 // query
