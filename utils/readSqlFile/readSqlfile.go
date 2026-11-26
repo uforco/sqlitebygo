@@ -12,16 +12,16 @@ func ReadSqlFile(path string) (string, error) {
 		return "", errors.New("path not defined")
 	}
 
-	rootPath := "sql"
+	rootPath := "./sql"
 	path = filepath.Clean(path)
 
 	// Avoid adding the root path twice.
-	if !filepath.IsAbs(path) {
-		path = strings.TrimPrefix(path, "."+string(os.PathSeparator))
-
-		if path != rootPath &&
-			!strings.HasPrefix(path, rootPath+string(os.PathSeparator)) {
-			path = filepath.Join(rootPath, path)
+	if path[:5] != rootPath {
+		if path[0:3] != "sql" && path[:1] != "/" {
+			path = rootPath + "/" + path
+		}
+		if path[0:3] == "sql" {
+			path = "./" + path
 		}
 	}
 

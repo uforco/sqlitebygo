@@ -5,6 +5,8 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/uforco/sqlitebygo/internal/config"
+	dbconfig "github.com/uforco/sqlitebygo/internal/dbConfig"
+	inittables "github.com/uforco/sqlitebygo/internal/dbConfig/initTables"
 	readsqlfile "github.com/uforco/sqlitebygo/utils/readSqlFile"
 )
 
@@ -20,6 +22,11 @@ func New(cfg *config.Config) (*Sqlite, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer db.Close()
+
+	// init tbale create
+	inittables.InitTables(db)
+
 	return &Sqlite{
 		Storage: db,
 	}, nil
@@ -27,6 +34,10 @@ func New(cfg *config.Config) (*Sqlite, error) {
 
 // query row
 func (db *Sqlite) QueryRow(query string, args ...interface{}) *sql.Row {
+	if db.err != nil {
+		return nil
+	}
+
 	return db.Storage.QueryRow(query, args...)
 }
 
@@ -71,7 +82,7 @@ func (s *Sqlite) Exec(args ...interface{}) (sql.Result, error) {
 }
 
 // read sql file
-func (db *Sqlite) ReadSchema(path string) *Sqlite {
+func (db *Sqlite) ReadSchema(path string) dbconfig.DB {
 	contain, err := readsqlfile.ReadSqlFile(path)
 
 	return &Sqlite{

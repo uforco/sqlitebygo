@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -13,7 +12,6 @@ import (
 
 	// httpSwagger "github.com/swaggo/http-swagger/v2"
 	"github.com/uforco/sqlitebygo/cmd/api/registar-api"
-	readsqlfile "github.com/uforco/sqlitebygo/utils/readSqlFile"
 
 	// _ "github.com/uforco/sqlitebygo/docs"
 	"github.com/uforco/sqlitebygo/internal/config"
@@ -29,14 +27,6 @@ func main() {
 	if dbError != nil {
 		log.Fatal("failed to init db", dbError.Error())
 	}
-
-	fmt.Println("db connected")
-
-	query, err := readsqlfile.ReadSqlFile("/user/createTable.sql")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(query)
 
 	// setup router
 	router := http.NewServeMux()
